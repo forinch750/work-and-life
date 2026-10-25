@@ -1,0 +1,3769 @@
+/* 应用外壳样式（DEVPLAN 阶段 2）：
+   左侧固定导航 + 右侧工作区、页头骨架、三种编辑交互、空状态、说明卡、快速记一笔 */
+
+.app {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ 导航 */
+
+/*
+ * 左栏（三段、收起/展开）与导航项的样式已迁到 `layout.css`（第 08 块）：
+ * 那里用 CSS `order` 显式控制"导航固定 / 列表滚动 / 底部固定"，
+ * 并给出收起成 54px 的窄条规则。改左栏请改那一份，别在这里加回来——
+ * 两份同时存在时会互相覆盖，症状是"底部'数据与设置'偶尔被挤出屏幕"。
+ */
+
+/* --------------------------------------------------------------- 工作区 */
+
+.workspace {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--bg-app);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  max-width: 1100px;
+}
+
+.page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.page__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.page__title-tag {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.page__description {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/*
+ * 「逾期 N 项」在逾期 > 0 时标出来（修改 5 轮）。
+ * 关掉自动顺延之后，页头这三个数是唯一的常驻提醒手段，所以它得醒目；
+ * 逾期为 0 时不加这个类（回到普通灰字，不制造噪音）。
+ */
+.page__description-strong {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.page__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ------------------------------------------------------------------ 按钮 */
+
+.button {
+  padding: 6px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+}
+
+.button:hover {
+  background: var(--bg-hover);
+}
+
+.button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.button--primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.button--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ 面板 */
+
+.panel {
+  padding: var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.panel__title {
+  margin-bottom: var(--space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.panel__note {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* 复习页顶部的汇总横条（第 05 块 · 已定决定 19 的防漏出口） */
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+}
+
+.review-summary__total {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.review-summary__topics {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feature-list__title {
+  font-weight: 600;
+}
+
+.feature-list__detail {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+/* -------------------------------------------------------------- 空状态 */
+
+.empty-state {
+  padding: var(--space-6) var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.empty-state__message {
+  color: var(--text-secondary);
+}
+
+.empty-state__hint {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* ---------------------------------------------------------- 行内输入 */
+
+.inline-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * 聚焦反馈。
+ *
+ * 输入框本身写了 outline: none，所以全局的 :focus-visible 对它无效；
+ * 而程序式聚焦（点"新建任务"按钮时的 input.focus()）又不会触发 :focus-visible。
+ * 两者叠加的结果是"点了按钮什么变化都看不到"——这正是用户报的"按钮失效"。
+ *
+ * 因此把聚焦效果加在容器上，与 .quick__field / .field__control / .toolbar__search 一致：
+ * 聚焦时边框变强调色。
+ */
+.inline-input:focus-within {
+  border-color: var(--accent);
+}
+
+.inline-input__field {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  outline: none;
+  resize: vertical;
+}
+
+.inline-input__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.inline-input__tip {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.inline-input__hint {
+  color: var(--success);
+  font-size: 12px;
+}
+
+.inline-input__error {
+  color: var(--danger);
+  font-size: 12px;
+}
+
+/* ------------------------------------------------------------ 右侧抽屉 */
+
+.drawer-layer,
+.dialog-layer,
+.quick-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.drawer-layer__mask,
+.dialog-layer__mask,
+.quick-layer__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 92vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-drawer);
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.drawer__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.drawer__close {
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.drawer__close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+}
+
+.drawer__footer {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ------------------------------------------------------------ 对话框 */
+
+.dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, 92vw);
+  padding: var(--space-5);
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dialog);
+}
+
+.dialog__title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.dialog__message {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.dialog__confirm-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.dialog__input {
+  padding: 6px 8px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+/* -------------------------------------------------------- 快速记一笔 */
+
+.quick {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, 92vw);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dialog);
+}
+
+.quick__field {
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  outline: none;
+  resize: vertical;
+}
+
+.quick__field:focus {
+  border-color: var(--accent);
+}
+
+.quick__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.quick__target {
+  padding: 6px 8px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.quick__error {
+  margin-top: var(--space-2);
+  color: var(--danger);
+  font-size: 12.5px;
+}
+
+/* ---------------------------------------------------------- 搜索与其它 */
+
+.search__input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: var(--space-4);
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  outline: none;
+}
+
+.theme-switch {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  padding: 6px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-drawer);
+}
+
+.theme-switch__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.theme-switch__select {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.flash {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-6) + 8px);
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: var(--text-primary);
+  color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  box-shadow: var(--shadow-dialog);
+}
+
+/* -------------------------------------------------------- 数据与设置页 */
+
+.kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.kv__row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.kv__row dt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.kv__row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  word-break: break-all;
+}
+
+.panel--danger {
+  border-color: var(--danger);
+}
+
+.panel__hint {
+  margin-bottom: var(--space-3);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.backup-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.backup-list__item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px var(--space-3);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+
+.backup-list__date {
+  font-family: var(--font-mono);
+}
+
+.backup-list__count {
+  color: var(--text-muted);
+}
+
+.backup-list__empty {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  padding: var(--space-2) 0;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field__label {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.field__control {
+  padding: 6px 8px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  outline: none;
+}
+
+.field__control:focus {
+  border-color: var(--accent);
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+}
+
+.notice--ok {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.notice--error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+/* ---------------------------------------------------- 计划 / 备忘 / 首页 */
+
+.chip {
+  padding: 5px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.chip--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.toolbar__spacer {
+  flex: 1;
+}
+
+.toolbar__search {
+  width: 200px;
+  padding: 5px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  outline: none;
+}
+
+.toolbar__search:focus {
+  border-color: var(--accent);
+}
+
+/*
+ * 工具栏里的逾期提示（修改 6 轮）
+ *
+ * 用户原话：「这个提醒放在上面按个框框里，然后可以关闭。」
+ * 它**不再是独占一行的警告条**（原来那个 `.notice--warn` 块已经删掉），
+ * 改成与这一排按钮同高的小控件：暖色字 + 细描边 + 一个小色点，
+ * 低调但不至于看不见（用户明确要"放在上面"且"能关掉"，不是要它消失）。
+ *
+ * 高度与 `.chip` 对齐（padding 5px + 1px 描边），这样它塞在
+ * 「视图按钮」与「移动某天未完成的…」之间时不会把这一排撑高。
+ */
+.plan-overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px 0 0;
+  background: var(--warning-soft);
+  border: 1px solid var(--warning);
+  border-radius: 999px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.plan-overdue__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 4px 5px 10px;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--warning);
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+.plan-overdue__open:hover {
+  color: var(--text-primary);
+}
+
+/* 小色点：即使文字被看漏，也还有一个暖色标记提醒"这里有事" */
+.plan-overdue__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+  flex: 0 0 auto;
+}
+
+.plan-overdue__dismiss {
+  padding: 2px 6px;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--warning);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.plan-overdue__dismiss:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.group__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.group__title--danger {
+  color: var(--danger);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.task:hover {
+  border-color: var(--border-strong);
+}
+
+.task--overdue {
+  border-left: 3px solid var(--danger);
+}
+
+.task--done {
+  opacity: 0.55;
+}
+
+.task--done .task__title {
+  text-decoration: line-through;
+}
+
+/*
+ * 已放弃的任务（修改 4 轮 · 第三态）
+ *
+ * 与"已完成"必须**看起来不一样**：已完成是变淡 + 删除线（做完了），
+ * 放弃是灰掉 + 虚边框 + 不画删除线（不做了）。只靠一个标签区分不够，
+ * 用户扫一眼列表时得能立刻分辨这两条已收尾的任务。
+ */
+.task--abandoned {
+  opacity: 0.5;
+  border-style: dashed;
+  background: var(--bg-subtle, #f4f4f5);
+}
+
+.task--abandoned .task__title {
+  color: var(--text-muted);
+}
+
+.group__title--muted {
+  color: var(--text-muted);
+}
+
+/*
+ * 「已标未完成（N）」那一组的标题（修改 7 轮 · `修改-7.md` §四 4.2）。
+ *
+ * 刻意**不用红色**：红色是"逾期"的语义，而这一组恰恰是"不再算逾期"的任务。
+ * 用次要色 + 标题右边一句极小的灰字「不计入逾期」告诉用户它没丢。
+ */
+.group__title--held {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.group__title-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.task--compact {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  padding: 5px var(--space-3);
+}
+
+.task__check {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.task__check:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.task__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task__date {
+  min-width: 62px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.task__meta {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.task__meta--repeat {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.task__meta--warn {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.task__meta--carry {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+/* 「该复习了 / 复习 10-14」这类标记（第 03 块的"设置复习时间"） */
+.task__meta--review {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* 已放弃的标签（修改 4 轮）：虚边框 + 灰字，与「已完成」的实心淡色区分开 */
+.task__meta--abandoned {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-strong);
+}
+
+/*
+ * 「未完成」标签（修改 5 轮 · 手动标了"别批量搬我"的任务）。
+ *
+ * 用户原话："标记后就显示未完成就行"。视觉上刻意做成**灰色实线描边**：
+ *   - 与「已放弃」的**虚线**框区分开（那是彻底退出的第三态）
+ *   - 不借状态色（红 / 绿），免得被读成另一种"状态"
+ */
+.task__meta--held {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+
+/*
+ * 列表行上的 `⋯`：与 `.task__menu-button` 不同，这个**一直可见**。
+ * 树行 / 卡片行 / 备忘上没有"悬停整行才浮出按钮"的习惯，
+ * 藏起来会让右键菜单这个新入口变得没人发现（右键本身就没有视觉提示）。
+ */
+.row-menu-button {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.row-menu-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.task__menu-button {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  opacity: 0;
+}
+
+.task:hover .task__menu-button,
+.task__menu-button:focus {
+  opacity: 1;
+}
+
+.task__menu-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.task__menu {
+  position: absolute;
+  right: var(--space-2);
+  top: calc(100% + 4px);
+  z-index: 20;
+  min-width: 150px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-drawer);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* ---------------------------------------------------- 通用右键菜单（FEAT-001） */
+
+/*
+ * 用 fixed 而非 absolute：坐标来自鼠标事件的 clientX/clientY，
+ * 那是相对视口的，用 absolute 在滚动过的页面里会错位。
+ */
+.context-menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 160px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-drawer);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  outline: none;
+}
+
+.context-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 5px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+/* 每一项外面那层：只为了能把分隔线与组标题和按钮放进同一个竖排里 */
+.context-menu__slot {
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu__group {
+  padding: 5px 8px 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.context-menu__sep {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--border-strong);
+}
+
+.context-menu__item:hover:not(:disabled),
+.context-menu__item.is-active:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.context-menu__item:disabled {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+.context-menu__item.is-danger {
+  color: var(--danger);
+}
+
+.context-menu__hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* 抽屉里那一行"⋯"（书的操作菜单） */
+.detail__menu-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* -------------------------------------------------- 卡片列表（第 03 块的右键实体） */
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 自己滚，页面级不出现滚动条（§7.2） */
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+}
+
+.card-row:last-child {
+  border-bottom: none;
+}
+
+.card-row__front {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.card-row__meta {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* -------------------------------------------------- 通用表单抽屉（BUG-001/002/004/005） */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-3);
+}
+
+.field__label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field__hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.form__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* ---------------------------------------------------------- 回收站（FEAT-009） */
+
+.trash-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.trash-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.trash-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.trash-item__title {
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trash-item__meta {
+  display: flex;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.trash-item__type {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.trash-item__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------- 操作指南（第 07 块） */
+
+.guide {
+  display: flex;
+  gap: var(--space-4);
+  align-items: stretch;
+  margin-top: var(--space-3);
+}
+
+/* 左：章节目录。条目再多也自己滚，不与正文抢高度 */
+.guide__toc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 0 0 168px;
+  width: 168px;
+  max-height: 440px;
+  padding-right: 2px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.guide__toc-item {
+  padding: 7px var(--space-3);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.guide__toc-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* 当前停在哪一章：只用颜色（决定 5，不加左侧竖条、不加箭头） */
+.guide__toc-item--active {
+  background: var(--bg-selected);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/*
+  右：正文。**固定高度 + 自己滚**——正文再长也不许把设置页撑长
+  （守 `MASTER.md` §7.2 的滚轮规矩；端到端有"页面级无滚动条"的断言）。
+*/
+.guide__body {
+  flex: 1;
+  min-width: 0;
+  height: 440px;
+  max-height: 440px;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  border-left: 1px solid var(--border-subtle);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.guide__body:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.guide__chapter {
+  padding-bottom: var(--space-4);
+}
+
+.guide__chapter-title {
+  margin: 0 0 var(--space-2);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.guide__subhead {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.guide__paragraph {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.guide__list {
+  margin: 0 0 var(--space-3);
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.guide__list--ordered {
+  padding-left: 20px;
+}
+
+.guide__item {
+  margin-bottom: 4px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.guide__item--sub {
+  margin-left: var(--space-3);
+  list-style: circle;
+}
+
+/* 键盘键：小标签，别只写纯文本（本块 DoD 明写的一条） */
+.guide__kbd {
+  display: inline-block;
+  min-width: 18px;
+  margin: 0 1px;
+  padding: 0 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 17px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.guide__inline-code {
+  padding: 0 3px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.guide__table-wrap {
+  margin: 0 0 var(--space-3);
+  overflow-x: auto;
+}
+
+.guide__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.guide__table th,
+.guide__table td {
+  padding: 6px var(--space-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+.guide__table th {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.guide__code-block {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+.guide__quote {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  white-space: pre-line;
+}
+
+.guide__pending {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 4px;
+  background: var(--warning-soft);
+  border-radius: var(--radius-sm);
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.dialog__detail {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+/* -------------------------------------------------------- 富文本编辑器（FEAT-002） */
+
+.rich-text {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.rich-text:focus-within {
+  border-color: var(--accent);
+}
+
+.rich-text__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-hover);
+}
+
+.rich-text__tool {
+  min-width: 26px;
+  height: 24px;
+  padding: 0 6px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rich-text__tool:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.rich-text__link {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.rich-text__editor {
+  padding: var(--space-3);
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  outline: none;
+  overflow-y: auto;
+  max-height: 420px;
+}
+
+/* 空编辑器显示占位提示 */
+.rich-text__editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+}
+
+.rich-text__editor blockquote {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.rich-text__editor pre {
+  margin: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/*
+ * 链接只存不点开：程序拦截一切外部请求且禁用 shell.openExternal，
+ * 所以这里明确做成"看起来是链接、但不会被误当成能跳转"。
+ */
+.rich-text__editor a {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: text;
+}
+
+/* ------------------------------------------------- 富文本：只读显示（第 04 块） */
+
+.rich-text__view {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+/* 纯文本保留换行（与升级前的 <p> 表现一致） */
+.rich-text__plain {
+  white-space: pre-wrap;
+}
+
+.rich-text__html p {
+  margin: 0 0 4px;
+}
+
+.rich-text__html p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text__html h1,
+.rich-text__html h2,
+.rich-text__html h3 {
+  margin: 6px 0 3px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rich-text__html ul,
+.rich-text__html ol {
+  margin: 3px 0;
+  padding-left: 20px;
+}
+
+.rich-text__html blockquote {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.rich-text__html pre {
+  margin: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/*
+ * 链接**不可点**：渲染出来的 <a> 连 href 都没有（见 shared/richTextDisplay.ts），
+ * 这里再把指针与下划线风格做成"只能看"的样子，不给人"点一下试试"的暗示。
+ */
+.rich-text__html a,
+.rich-text__html .rich-text__link-disabled {
+  color: var(--text-secondary);
+  text-decoration: underline dotted;
+  cursor: default;
+  pointer-events: none;
+}
+
+.rich-text__link-hint {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* 任务备注：与标题同一个竖排容器，另起一行且弱于标题 */
+.task__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.task__main .task__title {
+  flex: none;
+}
+
+.task__note {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.task__note .rich-text__plain,
+.task__note .rich-text__html p {
+  margin: 0;
+}
+
+/* 备忘 / 日志 / 摘录 / 总评：显示块沿用原 class 的字号与换行 */
+.memo__text.rich-text__view,
+.log__content.rich-text__view,
+.excerpt__content.rich-text__view,
+.detail__review.rich-text__view {
+  font-size: inherit;
+}
+
+/* --------------------------------------------- 富文本：一行写完就存的输入区 */
+
+.rich-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rich-composer__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11.5px;
+}
+
+.task__menu button {
+  padding: 5px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+.task__menu button:hover {
+  background: var(--bg-hover);
+}
+
+.task__menu button.is-active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.task__menu button.is-danger {
+  color: var(--danger);
+}
+
+.task__menu-label {
+  padding: 6px 8px 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.task__menu-sep {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--border-subtle);
+}
+
+/* ============================================================ 日历三档
+   第 05 块：周 / 月 / 年。滚动规矩（§5.9 / §7.2）：
+   - 日历主体**吃满剩余高度、内部滚动**（.calendar__body 那一层）
+   - **不允许页面级滚动条**：所以用 .page--fill 把高度链条一路传下来
+   高度链条：.app(100%) → .workspace(flex:1) → .page--fill(height:100%)
+             → .page__content(flex:1) → .calendar(flex:1) → .calendar__body(flex:1)
+*/
+
+.page--fill {
+  height: 100%;
+  min-height: 0;
+}
+
+.page--fill .page__content {
+  flex: 1;
+  min-height: 0;
+}
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+}
+
+/* 周视图顶部"全天"行的高度：左侧标签与 7 列必须共用同一个值，否则小时行会错位 */
+.calendar--week {
+  --week-allday-height: 92px;
+}
+
+.calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.calendar__title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calendar__jump {
+  padding: 3px 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.calendar__legend {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.calendar__legend-item::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.calendar__legend-item--todo::before {
+  background: var(--accent);
+}
+
+.calendar__legend-item--done::before {
+  background: var(--success);
+}
+
+.calendar__legend-item--overdue::before {
+  background: var(--danger);
+}
+
+/* 这一层才是"内部滚动"的那一层 */
+.calendar__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* 任务条：待办=蓝 / 已完成=绿 / 逾期=红 */
+.calendar-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  font-size: 11px;
+  line-height: 1.35;
+  cursor: grab;
+  overflow: hidden;
+}
+
+/* "全天"行里的条：时段与标题排一行，一行能多放几条 */
+.calendar-bar--inline {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+  padding: 0 5px;
+  flex: 0 0 auto;
+}
+
+.calendar-bar--inline .calendar-bar__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar-bar__time {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.calendar-bar__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-bar--done {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.calendar-bar--overdue {
+  border-left-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* 任务条点开的小面板（编辑 / 标记完成 / 改时间 / 删除） */
+.calendar__panel {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  padding: var(--space-2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-drawer);
+}
+
+.calendar__panel-title {
+  padding: 0 var(--space-1) var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ 周视图
+   列 = 7 天（.week__column 恒为 7 个，P4-E3 按它计数），
+   行 = 完整 24 小时；顶部"全天"行用 position: sticky 固定在滚动的顶部。
+*/
+.week__header {
+  display: grid;
+  grid-template-columns: 52px repeat(7, minmax(0, 1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.week__gutter-head {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.week__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1) var(--space-1);
+  font-size: 12px;
+}
+
+.week__head--today {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.week__weekday {
+  font-weight: 600;
+}
+
+.week__date {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.week__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.week {
+  display: grid;
+  grid-template-columns: 52px repeat(7, minmax(0, 1fr));
+  align-items: start;
+}
+
+.week__gutter {
+  position: sticky;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+}
+
+.week__allday-label {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--week-allday-height, 92px);
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.week__hour-label {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: var(--space-1);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.week__column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* 今天那一列：底色变浅蓝（§5.3） */
+.week__column--today {
+  background: var(--accent-soft);
+}
+
+.week__column[data-drop-active='true'] {
+  background: var(--bg-active);
+}
+
+/* 顶部的"全天"行：固定不滚（sticky），内容多了自己在格里滚 */
+.week__allday {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: var(--week-allday-height, 92px);
+  padding: 3px;
+  overflow-y: auto;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.week__column--today .week__allday {
+  background: var(--accent-soft);
+}
+
+.week__allday-empty {
+  color: var(--text-disabled);
+  font-size: 11px;
+  text-align: center;
+}
+
+.week__slot {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 2px;
+  overflow: hidden;
+  border-top: 1px solid var(--border-subtle);
+  cursor: cell;
+}
+
+.week__slot:hover {
+  background: var(--bg-hover);
+}
+
+/* ------------------------------------------------------------ 月视图 */
+.month__header {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.month__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.month__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  flex: 1;
+  min-height: 72px;
+}
+
+.month__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 2px 4px 4px;
+  border-top: 1px solid var(--border-subtle);
+  border-left: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  cursor: cell;
+  overflow: hidden;
+}
+
+.month__cell--outside {
+  background: var(--bg-subtle);
+  color: var(--text-disabled);
+}
+
+.month__cell--today {
+  background: var(--accent-soft);
+}
+
+.month__day {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 2px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.month__cell--today .month__day {
+  color: var(--accent);
+}
+
+/* 今天用蓝色圆点标出（§5.4） */
+.month__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.month__count {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+
+.month__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.month__task {
+  padding: 0 3px;
+  border-left: 2px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.month__task--done {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* "还有 N 项…"（点了进那一天） */
+.month__more {
+  align-self: flex-start;
+  padding: 0 3px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 10.5px;
+  text-align: left;
+}
+
+.month__more:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------ 年视图 */
+.year__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.year {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(96px, 118px));
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.year__month {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.year__month:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+}
+
+.year__month--current {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+}
+
+.year__month-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.year__month-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.year__month-count {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.year__month-rate {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* 进度条＝完成率（绿色），与"任务数"是脱钩的两个数（§5.5） */
+.year__bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+
+.year__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--success);
+  border-radius: 3px;
+}
+
+/* 备忘录 */
+.memo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memo {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.memo--pinned {
+  border-left: 3px solid var(--accent);
+}
+
+.memo__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.memo__text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.memo__time {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.memo__actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.memo__pin,
+.memo__menu-button {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-disabled);
+  font-size: 12px;
+}
+
+.memo__pin.is-active {
+  color: var(--accent);
+}
+
+.memo__pin:hover,
+.memo__menu-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.memo__menu-button {
+  opacity: 0;
+}
+
+.memo:hover .memo__menu-button,
+.memo__menu-button:focus {
+  opacity: 1;
+}
+
+/* 首页 */
+.home__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home__greeting {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.home__date {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.panel__head .panel__title {
+  margin-bottom: 0;
+}
+
+.link {
+  padding: 2px 4px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12.5px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.attention {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.attention__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.attention__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.attention__label {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+.attention__count {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.memo-mini {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memo-mini__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 6px var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.memo-mini__item:last-child {
+  border-bottom: none;
+}
+
+.memo-mini__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memo-mini__time {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+}
+/* --------------------------------------------------------- 学习与复习 */
+
+.split {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.split__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.split__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.topic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 主题行（第 08 块起长在**侧栏中段**，不再占右侧一格）。
+ * 选中态只用颜色（决定 5）：`--bg-selected` 浅色变深 / 深色变淡，
+ * 不加边框、不加左侧竖条、不加箭头。
+ */
+.topic {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: 5px var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.topic:hover {
+  background: var(--bg-hover);
+}
+
+.topic--active {
+  background: var(--bg-selected);
+}
+
+.topic--active:hover {
+  background: var(--bg-selected-hover);
+}
+
+.topic__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.topic__meta {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.topic__tag {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0 5px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.detail__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.detail__title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.detail__badge {
+  padding: 1px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+}
+
+.detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.progress__bar {
+  position: relative;
+  height: 10px;
+  background: var(--bg-active);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 5px;
+  transition: width 0.2s ease;
+}
+
+.progress__mark {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 4px;
+  background: var(--success);
+}
+
+.progress__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.progress__row input[type='range'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress__value {
+  min-width: 44px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+/* 按树 / 按章节算出来的进度（§7.9）：与手动进度并排显示，避免互相误会 */
+.progress__auto {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ------------------------------------------------- 学习页预览区（第 09 块 §6.2）
+
+   定稿图里预览是**两块并排**：左边"这个主题是什么"，右边"进度 + 按钮排"。
+   高度按内容走（`bands__preview` 是 `flex: 0 0 auto`），所以这里**不许**写死高度。
+   （2026-10 修订前这里写的是"不许让内容把页面撑长"，那条已经作废：
+   三模块页现在**本来就**会随内容把右侧那一列撑长、由它自己滚，见 `layout.css`
+   的 `page--scroll`；中区两块仍然各自内部滚。）
+
+   10（复习页）/ 11（读书页）可以直接套这几个 class：左信息卡 / 右主卡 / 四行信息。
+   ------------------------------------------------------------------------- */
+
+.preview {
+  display: grid;
+  grid-template-columns: 258px minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+/* 新建主题的行内输入放在页头工具条那一行：学习页的纵向空间要留给三段骨架 */
+.page__toolbar .inline-input {
+  flex: 1 1 auto;
+  min-width: 220px;
+  max-width: 420px;
+}
+
+.preview__info,
+.preview__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.preview__desc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+  /* 说明再长也不许把预览撑高：这一格自己截断 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 四行：开始 / 时限 / 资料 / 学习记录（§6.2 左侧信息） */
+.preview__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.preview__fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.preview__fact dt {
+  color: var(--text-muted);
+}
+
+.preview__fact dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 「还没进入主题」时下区显示的那张提示卡（不进树，也不占滚动条） */
+.panel--hint {
+  justify-content: flex-start;
+  color: var(--text-muted);
+}
+
+.panel--hint .panel__hint {
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* 日志行上"挂在某一章"的标记（§6.3：日志挂在章节上，决定 16） */
+.log__node {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   树（第二轮 FEAT-006 / MASTER §7.5 §7.9）
+   虚线框 = 汇总节点（有子节点、不参与计数）；实心方框 = 最小单元（可打勾）。
+   缩进由行内 style 给出（第 5 层起从 20px 收窄到 12px），这里只管其它观感。
+   --------------------------------------------------------------------------- */
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.tree__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tree__hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* 树主体自己滚（§7.2：整页永不出现滚动条）
+   ⚠️ 2026-10 修订：三模块页的树**不再自己滚**（按内容高、跟随整页往下翻），
+   这条现在是"页面级不滚"的默认，被 `layout.css` 的 `page--scroll .tree__list` 覆盖掉。 */
+.tree__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 420px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.tree__row {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: var(--space-2);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid transparent;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.tree__line:hover {
+  background: var(--bg-hover);
+}
+
+/* 拖拽落点提示：上/下边＝同级前后，整行＝变成子节点 */
+.tree__row.is-drop-before > .tree__line {
+  border-top: 2px solid var(--accent);
+}
+
+.tree__row.is-drop-after > .tree__line {
+  border-bottom: 2px solid var(--accent);
+}
+
+.tree__row.is-drop-onto > .tree__line {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.tree__caret {
+  width: 16px;
+  min-width: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tree__caret--blank {
+  display: inline-block;
+}
+
+/* 复选框：最小单元是实心方框，汇总节点是虚线框（且不可点） */
+.tree__check {
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.tree__check--summary {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px dashed var(--border-strong);
+  border-radius: 2px;
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.tree__check--summary:checked {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--border-strong) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.tree__badge {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.tree__title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree__rename {
+  flex: 1;
+  min-width: 80px;
+  padding: 1px 4px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.tree__progress {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tree__summary-tag {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tree__spacer {
+  flex: 1;
+  min-width: var(--space-2);
+}
+
+.tree__grip {
+  color: var(--text-muted);
+  cursor: grab;
+  user-select: none;
+  padding: 0 2px;
+}
+
+.tree__grip:active {
+  cursor: grabbing;
+}
+
+/* 就地展开的节点内容（学习：记一次学习与学习记录；读书：页码与加子章） */
+.tree__detail {
+  margin: 2px 0 var(--space-2) 76px;
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.tree__logbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/*
+   就地面板右上角的「收起」（2026-10 修订 · 学习页与读书页共用同一个样子）。
+
+   面板以前没有任何收起入口，用户只能猜"再点这一行"能收——所以这里给一个
+   明确可见的文字按钮。两页**必须长得一样**（§6.4 第 6 条），
+   所以样式只写这一份，别在页面里各自再贴一遍。
+*/
+.tree__detail-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.resource-list,
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resource {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: 12.5px;
+}
+
+.resource__name {
+  font-weight: 600;
+}
+
+.resource__type,
+.resource__progress,
+.resource__percent {
+  color: var(--text-muted);
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.log:last-child {
+  border-bottom: none;
+}
+
+.log__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* 中区卡片只有半屏宽：日期 / 时长 / 挂在哪一章 / →复习 / 删除 一行放不下时就换行 */
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.log__date {
+  font-family: var(--font-mono);
+}
+
+.log__content {
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.link--danger {
+  color: var(--danger);
+}
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.field__control--short {
+  width: 92px;
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.review__card {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  min-height: 220px;
+}
+
+.review__meta {
+  display: flex;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.review__front {
+  font-size: 18px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.review__answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.review__back {
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
+.review__grades {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.grade {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.grade:hover {
+  border-color: var(--border-strong);
+}
+
+.grade__label {
+  font-weight: 600;
+}
+
+.grade__hint {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.grade__key {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--text-disabled);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.grade--forgot:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.grade--remembered:hover {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+
+.review__progress {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.notice--warn {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+/*
+ * 提示条里内联的那个按钮（修改 5 轮：「逾期的提示 + 直达批量移动面板」那一条）。
+ * 只有它需要一点点左边距，免得文字与按钮粘在一起。
+ */
+.notice .chip {
+  margin-left: var(--space-2);
+  vertical-align: baseline;
+}
+/* ------------------------------------------------------- 读书（第 11 块） */
+/*
+   左栏书架行：封面块 + 书名首字 + 三档状态 + **按章节算**的进度细线。
+   基础布局（宽度 / hover / 选中态）在 `layout.css` 的 `.sidebar-list .book-row` 里，
+   这里只补"封面 / 细线 / 两行文字"——**滚轮规矩那一份（layout.css）本块一个字没改**。
+*/
+
+.book-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 封面必须定死宽高并禁止伸缩，否则会被 flex 拉伸成大方块把文字挤没（实测踩过） */
+.book-row__cover {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.book-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.book-row__title {
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-row__meta {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 进度细线：**按章节算**（读完的章 / 总章数），不是按页码 */
+.book-row__bar {
+  display: block;
+  height: 4px;
+  margin-top: 2px;
+  background: var(--bg-active);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.book-row__fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+/* 预览里的状态徽标：想读 / 在读 / 读完三档用颜色分开（文字同时写清楚） */
+.reading-badge--reading {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.reading-badge--finished {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.reading-badge--want {
+  background: var(--bg-active);
+  color: var(--text-secondary);
+}
+
+/* 状态徽标：不许被书名挤成竖排（实测踩过：徽标只剩一个字宽，"在读"被折成两行） */
+.reading-badge {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* 读书的预览信息卡比学习 / 复习那两张多两行（读到 / 章节 / 记录 / 摘录·想法） */
+.preview--reading {
+  grid-template-columns: 276px minmax(0, 1fr);
+}
+
+/* 中区「摘录与想法」一行：`原文 · p.11` + 正文 + → 复习 / 删除（摘录不进树，决定 24） */
+.reading-excerpt {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.reading-excerpt__tag {
+  flex: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.reading-excerpt__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 中区「阅读记录」一行：日期 / 时长 / 页码范围 /（挂在某章） */
+.reading-record {
+  display: grid;
+  grid-template-columns: 76px 64px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: 12px;
+}
+
+.reading-record__date {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.reading-record__minutes {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.reading-record__pages {
+  color: var(--text-secondary);
+}
+
+.reading-record__owner {
+  max-width: 130px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inline-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------- 搜索 */
+
+.search__summary {
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.search__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.search__group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.search__group-count {
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--bg-active);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.search__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search__hit {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: 6px var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.search__hit:hover {
+  background: var(--bg-hover);
+}
+
+.search__hit-title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search__hit-meta {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+/* ===========================================================================
+   第 06 块：复习时间 / 复习历史 / 就地背卡 / 备忘标签 / 快捷键设置
+   =========================================================================== */
+
+/* ---------- 卡片行：可点开就地背卡（决定 18） ---------- */
+
+.card-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  cursor: pointer;
+}
+
+.card-row:hover {
+  background: var(--bg-hover);
+}
+
+.card-row--open {
+  background: var(--bg-subtle);
+}
+
+.card-row__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.card-row__review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  /* 点评分按钮时不该把整行收起来 —— 冒泡在组件里已经拦住，这里只负责版式 */
+  cursor: default;
+}
+
+.inline-review__front {
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.inline-review__back {
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
+.inline-review__hint {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* ---------- 复习历史 ---------- */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 自己滚，页面级不出现滚动条（§7.2） */
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) 128px minmax(0, 1.6fr);
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-row__front {
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.history-row__back {
+  color: var(--text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.history-row__time {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-row__grade {
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.history-row__grade.grade--forgot {
+  color: var(--danger);
+}
+
+.history-row__grade.grade--remembered {
+  color: var(--success);
+}
+
+/* ---------- 备忘标签（FEAT-004：只做标签，不做文件夹） ---------- */
+
+.tag-filter,
+.tag-editor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tag-filter__label {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.tag-filter__empty {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+
+.tag-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.tag-chip--active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tag-chip--small {
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.tag-chip__count {
+  color: var(--text-disabled);
+  font-variant-numeric: tabular-nums;
+}
+
+.tag-clear {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 11.5px;
+  text-decoration: underline;
+}
+
+.tag-editor {
+  margin-bottom: var(--space-3);
+}
+
+.memo__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.memo__tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* ---------- 快捷键设置（FEAT-008） ---------- */
+
+.panel__subtitle {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.hotkey-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+}
+
+.hotkey-row:last-child {
+  border-bottom: none;
+}
+
+.hotkey-row--capturing {
+  background: var(--accent-soft);
+}
+
+.hotkey-row__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 150px;
+}
+
+.hotkey-row__badge {
+  padding: 0 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+
+.hotkey-row__combo {
+  padding: 1px 7px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hotkey-row__hint {
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.hotkey-list--fixed .hotkey-row__label {
+  min-width: 0;
+}
+/* ===========================================================================
+   第 10 块：复习页（`MASTER.md` §7.6 + §14 决定 17–21）
+
+   三件事：
+     1. 左栏主题行右侧那个"属于它自己的"到期数（没有全局队列之后的主要读数）
+     2. 树 = 资料 → 章节 → 卡片；卡片行的三色圆点＝到期状态
+     3. 中区两块里的记录行（132px 卡片自己滚，里面不许再套一层滚动条）
+
+   滚动规矩不在这里（那是 layout.css 的事）：卡片自己滚；**树不滚**（2026-10 修订：
+   三模块页的下区与树按内容高，滚动由右侧内容区承担）；页面级（html/body）不滚。
+   ========================================================================= */
+
+/* ---------------------------------------------------- 左栏：复习主题 + 到期数 */
+
+/*
+   一行 = 主题按钮 + 行尾 `⋯`（打开「显示已隐藏」时还多一个「取消隐藏」）。
+   2026-10 修订（修改 2 轮）：主题行以前是"一个按钮包住整行"，没有操作入口；
+   加了 `⋯` 以后必须拆成 flex 行，否则嵌套 `<button>` 是非法 HTML。
+   **布局（display / flex / 宽度）在 `layout.css`**（那一节本来就是管侧栏基础布局的，
+   而且它后加载——写在这里会被它的 `width: 100%` 盖掉）；
+   这里只管"长什么样"。
+*/
+.review-topic {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+/*
+   已隐藏的主题：灰显出现（只在「显示已隐藏」打开时）。
+   刻意**不**把到期数抹掉——那个数字仍然是它自己的真实数字（隐藏不改数据）。
+*/
+.review-topic--hidden,
+.review-topic-row--hidden .review-topic__meta {
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
+.review-topic__unhide {
+  flex: none;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.review-topic__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.review-topic__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.review-topic__meta {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* 每项右侧的到期数（红字）；已清是「—」，用灰底，别让它跟"有 3 张"看起来一样 */
+.due-badge {
+  flex: none;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.due-badge--zero {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ------------------------------------------------ 卡片行的三色到期圆点 */
+
+.due-dot {
+  flex: none;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* 🔴 今天到期 / 🟠 快到期 / 🟢 今天不用 */
+.due-dot--due {
+  background: var(--danger);
+}
+
+.due-dot--soon {
+  background: var(--warning);
+}
+
+.due-dot--later {
+  background: var(--success);
+}
+
+/* ------------------------------------------------------------ 复习树 */
+
+.review-tree {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 var(--space-1) 0 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.review-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px var(--space-1);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+
+.review-tree__row--material {
+  margin-top: 4px;
+  background: var(--bg-subtle);
+  font-weight: 600;
+}
+
+.review-tree__row--chapter {
+  color: var(--text-secondary);
+}
+
+.review-tree__row--material:hover,
+.review-tree__row--chapter:hover {
+  background: var(--bg-hover);
+}
+
+/* 卡片行自己是一列：上面一行放圆点/正面/状态，下面（展开时）放背卡 */
+.review-tree__row--card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  cursor: pointer;
+}
+
+.review-tree__line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.review-tree__caret {
+  flex: none;
+  width: 12px;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.review-tree__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.review-tree__badge {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.review-tree__count {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* 节点行右端的"到期 N / 已清"，以及卡片行的状态字 */
+.review-tree__due {
+  flex: none;
+  padding: 0 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.review-tree__due--zero,
+.review-tree__due--later {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.review-tree__due--due {
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.review-tree__due--soon {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.review-tree__actions {
+  flex: none;
+}
+
+/* 树里的就地展开区：缩进已经由行的 padding-left 负责，这里不再加左边距 */
+.review-tree .card-row__review {
+  margin-left: 0;
+}
+
+/* 预览区那三个圆点的图例（今天到期 / 快到期 / 今天不用各几张） */
+.review-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.review-legend .due-dot {
+  margin-left: 6px;
+}
+
+.detail__badge--due {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* --------------------------- 汇总横条 & 中区两块在三段骨架里的收紧 */
+
+/* 横条现在住在"上预览"那一段里：一行高就够，别把树挤没 */
+.review-summary {
+  flex: 0 0 auto;
+  padding: 6px var(--space-3);
+  gap: var(--space-2);
+}
+
+.review-summary__total {
+  white-space: nowrap;
+}
+
+.review-summary__topics {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 中区卡片自己滚（132px），里面这一层不许再长出一条滚动条 */
+.band-card__body .history-list {
+  max-height: none;
+  overflow: visible;
+}
+
+/* 半屏宽：四列收窄一点，"日期 / 卡片 / 答案 / 评分→间隔"仍然都在 */
+.band-card__body .history-row {
+  grid-template-columns: 112px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: var(--space-1);
+  padding: 3px var(--space-1);
+  font-size: 11.5px;
+}
+
+/* 「只看某一张卡的历史」那一行 */
+.band-card__body .band-list__row {
+  gap: var(--space-2);
+}
+/* 卡片行上的"到期 2026-10-17 23:30"（06 块的 dueTime 就显示在这里） */
+.review-tree__time {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* 树那一块：面板内边距收紧一点，纵向空间全留给树（中区两块固定 132px 不能动） */
+.review-tree-panel {
+  padding: var(--space-2) var(--space-3);
+}
+
+.review-tree-panel .panel__head {
+  margin-bottom: var(--space-1);
+}
+
+.review-tree-panel .panel__note {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  font-size: 11.5px;
+}
+
+/* 记录列表那一格的时间不再换行（紧凑写法见 shared/reviewPageView.ts 的 shortDateTime） */
+.band-card__body .history-row__time {
+  white-space: nowrap;
+}
+/* 就地展开区里的主按钮不必拉满整行（那一区已经够高了） */
+.card-row__review .button--primary {
+  align-self: flex-start;
+}

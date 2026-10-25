@@ -1,0 +1,148 @@
+/* 设计变量：浅色 / 深色 / 跟随系统（对应 PRD §2.9 主题设置） */
+:root {
+  --bg-app: #f5f6f8;
+  --bg-surface: #ffffff;
+  --bg-subtle: #eef0f3;
+  --bg-hover: #e9ecf1;
+  --bg-active: #e2e7ef;
+
+  --text-primary: #1c1f24;
+  --text-secondary: #5a6272;
+  --text-muted: #8b93a3;
+  --text-disabled: #b4bac6;
+
+  --border-strong: #d3d8e0;
+  --border-subtle: #e6e9ee;
+
+  --accent: #2f6feb;
+  --accent-hover: #245ecf;
+  --accent-soft: #e6efff;
+
+  --danger: #d64545;
+  --danger-soft: #fdeaea;
+  --warning: #c98512;
+  --warning-soft: #fdf3e2;
+  --success: #2f9e6b;
+  --success-soft: #e6f6ee;
+
+  --sidebar-width: 200px;
+  /* 收起后的窄条宽度（决定 6：54px + 只留图标） */
+  --sidebar-width-collapsed: 54px;
+
+  /*
+   * 选中态只用**颜色**表达（决定 5：不加粗边框、不加箭头）。
+   * 浅色模式：比表面色**深一点**；深色模式在下面那两处覆盖成**淡一点**。
+   * 单独一个变量而不是复用 --bg-active：--bg-active 到处都在用（徽标、日格），
+   * 把它改深会顺手改掉一堆无关的地方。
+   */
+  --bg-selected: #d9e1ef;
+  /* 未选中的行不需要边框，靠底色区分（避免"变深"与"加粗"混在一起） */
+  --bg-selected-hover: #cfd9ea;
+
+  /*
+   * 滚动条必须**始终看得见**（§7.2 / 决定 8）。
+   * Windows 上细灰条几乎看不见，用户会以为不能滚——已踩过，所以轨道给底色、
+   * 滑块用比边框更强的对比色，宽度固定 10px（base.css 里设）。
+   */
+  --scroll-track: #e4e8ef;
+  --scroll-thumb: #a7b0c0;
+  --scroll-thumb-hover: #78839a;
+
+  /* 中区两块卡片的固定高度（§7.2：约 132px，内容自己滚） */
+  --band-card-height: 132px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --font-sans: "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+
+  --shadow-drawer: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-dialog: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg-app: #16181c;
+    --bg-surface: #1e2126;
+    --bg-subtle: #24272d;
+    --bg-hover: #2b2f36;
+    --bg-active: #333842;
+
+    --text-primary: #e8eaee;
+    --text-secondary: #a8b0be;
+    --text-muted: #7d8595;
+    --text-disabled: #565d6b;
+
+    --border-strong: #383d46;
+    --border-subtle: #2a2e35;
+
+    --accent: #5b8ff0;
+    --accent-hover: #79a3f5;
+    --accent-soft: #1e2a44;
+
+    /* 深色模式反过来：选中项**变淡**（比 --bg-surface / --bg-subtle 都亮） */
+    --bg-selected: #3a4150;
+    --bg-selected-hover: #454e60;
+
+    --scroll-track: #202329;
+    --scroll-thumb: #4d5563;
+    --scroll-thumb-hover: #6d7889;
+
+    --danger: #e06767;
+    --danger-soft: #3a2222;
+    --warning: #dda23f;
+    --warning-soft: #3a2f1c;
+    --success: #4fb885;
+    --success-soft: #1d3329;
+
+    --shadow-drawer: 0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-dialog: 0 12px 48px rgba(0, 0, 0, 0.55);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg-app: #16181c;
+  --bg-surface: #1e2126;
+  --bg-subtle: #24272d;
+  --bg-hover: #2b2f36;
+  --bg-active: #333842;
+
+  --text-primary: #e8eaee;
+  --text-secondary: #a8b0be;
+  --text-muted: #7d8595;
+  --text-disabled: #565d6b;
+
+  --border-strong: #383d46;
+  --border-subtle: #2a2e35;
+
+  --accent: #5b8ff0;
+  --accent-hover: #79a3f5;
+  --accent-soft: #1e2a44;
+
+  /* 深色模式反过来：选中项**变淡**（比 --bg-surface / --bg-subtle 都亮） */
+  --bg-selected: #3a4150;
+  --bg-selected-hover: #454e60;
+
+  --scroll-track: #202329;
+  --scroll-thumb: #4d5563;
+  --scroll-thumb-hover: #6d7889;
+
+  --danger: #e06767;
+  --danger-soft: #3a2222;
+  --warning: #dda23f;
+  --warning-soft: #3a2f1c;
+  --success: #4fb885;
+  --success-soft: #1d3329;
+
+  --shadow-drawer: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-dialog: 0 12px 48px rgba(0, 0, 0, 0.55);
+}

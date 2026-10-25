@@ -1,0 +1,104 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /*
+   * 整页永不出现页面级滚动条（`MASTER.md` §7.2 / 决定 7）。
+   * 三层一起钉死：只要有一层能滚，`document.scrollingElement` 就会长出条来。
+   * 内容各自在自己的框里滚（见 `layout.css` 的 `.sidebar__*` / `.band-card__*`；
+   * 三模块页的下区**不**自己滚，由 `.workspace` 那一列承担——2026-10 修订）。
+   */
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/*
+ * 滚动条：**必须始终看得见**（`MASTER.md` §7.2 / 决定 8 的硬要求）。
+ *
+ * 规矩（改之前先读这段）：
+ *   - 宽度固定 **10px**（滑块就是 10px 宽，不要再用透明边框把它"缩细"——
+ *     Windows 上细灰条几乎看不见，用户会以为不能滚，已踩过）
+ *   - **轨道有底色**（`--scroll-track`），一眼能看出"这块能滚"
+ *   - 滑块比轨道深得多（`--scroll-thumb`），hover 再深一档
+ *
+ * 各滚动容器自己再加 `scrollbar-gutter: stable`（留出槽位，内容不因出条而跳）。
+ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+}
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+::-webkit-scrollbar-corner {
+  background: var(--scroll-track);
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

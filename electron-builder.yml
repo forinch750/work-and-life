@@ -1,0 +1,61 @@
+# 打包配置（DEVPLAN 阶段 7）
+#
+# 产物：Windows 免安装版（单文件 exe，双击即用）+ 未打包目录（可直接运行）
+#
+# 为什么选"免安装版"而不是 NSIS 安装包：
+#   本机沙箱会拒绝 electron-builder 的 NSIS 流程里的若干子进程调用与目录改名
+#   （详见 scripts/patch-deps.mjs 的说明）。免安装版由 7z 自解压完成，
+#   同样满足"双击图标就能用"的要求，且对单机自用工具反而更省事：
+#   不需要管理员权限、不写注册表、整个文件拷走就能带走程序。
+#
+# 数据位置：打包后默认 %APPDATA%\工作生活；
+#          设置环境变量 WORKLIFE_ROOT 可改为便携模式（数据与程序放一起）。
+
+appId: com.local.worklife
+productName: 工作生活
+copyright: 本地个人使用
+
+directories:
+  # 兜底默认值。正常打包走 scripts/package.mjs，它会用
+  # --config.directories.output 覆盖成 pack-<时间戳>，每次产物各占一个目录。
+  # 直接手敲 electron-builder 命令时才会落到下面这个固定目录。
+  output: pack-20261010-150738
+  buildResources: build
+
+# 不打 asar：源码量很小，未归档反而更好——出问题能直接看到安装目录里的文件。
+# （也顺带避开了本机环境下 .asar 文件被系统组件持续占用的问题。）
+asar: false
+
+# 只打包运行期真正需要的东西
+files:
+  - out/**/*
+  - package.json
+
+# 本项目没有任何原生依赖（运行时只用 Electron 自带能力），
+# 因此跳过"重建原生模块"这一步：既省时间，也避免它去 fork 子进程。
+npmRebuild: false
+
+# 用预解压好的 Electron 目录：绕开 electron-builder 自己的解包与
+# 随之而来的 default_app.asar 删除失败（见 scripts/prepare-electron-dist.mjs）。
+electronDist: .electron-dist
+
+# Electron 运行时镜像通过环境变量 ELECTRON_MIRROR 指定
+# （写在脚本 scripts/package.mjs 里；此版本的 electron-builder 不支持在 yml 里写该字段）
+# 不联网、不自动更新、不收集任何信息
+
+win:
+  target:
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+  # 本地自用：明确不签名（不申请证书、不做时间戳，也就不需要联网）
+  signtoolOptions:
+    sign: false
+  signAndEditExecutable: true
+
+portable:
+  # 免安装版：双击后自解压运行，无需管理员权限
+  artifactName: 工作生活-免安装版-${version}.${ext}
+  requestExecutionLevel: user
+  unpackDirName: 工作生活

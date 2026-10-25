@@ -1,0 +1,24 @@
+# pnpm 工作区配置
+#
+# 关于依赖构建脚本：
+#   .npmrc 里设了 ignore-scripts=true，原因有两个：
+#     1) 本机沙箱下 pnpm spawn 生命周期脚本会 EPERM（已实测），执行必然失败；
+#     2) 安全性更好——依赖包不会在我们的机器上执行任意代码。
+#   但 pnpm 11 默认会把"被忽略的构建脚本"当成错误，安装以退出码 1 结束。
+#   这里用 strictDepBuilds: false 让它只提示、不报错（脚本本来也不该执行）。
+#
+#   需要二进制产物的依赖（electron、esbuild）由 scripts/fetch-binaries.mjs 显式补齐，
+#   下载内容需通过 SHA-256 校验。
+strictDepBuilds: false
+
+# 依赖版本覆盖
+#
+# @electron/get：electron-builder 26.15.3 的代码里用到了 ElectronDownloadCacheMode，
+# 但它自己声明的依赖范围是 ^3.0.0，而该枚举只存在于 5.x。
+# 这是上游的版本声明错误，结果是打包时必然崩在 resolveCacheMode。
+# 统一到 5.1.0 即可，不影响 Electron 运行时本身的下载。
+overrides:
+  '@electron/get': 5.1.0
+
+allowBuilds:
+  electron-winstaller: set this to true or false

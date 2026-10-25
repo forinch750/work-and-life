@@ -1,0 +1,670 @@
+/* ===========================================================================
+   界面骨架与滚轮规矩（第 08 块 · `MASTER.md` §7.1–§7.4 + §14 决定 1、4–8）
+   ===========================================================================
+
+   这一份是**公共地基**，09（学习）、10（复习）、11（读书）三块必须共用同一份，
+   不许各写一遍。里面只有三类东西：
+
+     1. 左栏三段（日期/导航固定 → 中间列表滚动 → 底部"数据与设置"固定）
+     2. 三段骨架（上预览 / 中两块 / 下主体）
+     3. 选中态（用颜色，不用箭头）
+
+   ## 滚轮规矩（硬要求，改之前先读）
+
+   | 区域                | 谁滚                                      |
+   |---------------------|-------------------------------------------|
+   | 左栏导航 / 底部工具 | **不滚**（`flex: 0 0 auto`）               |
+   | 左栏中段列表        | **只有它滚**（`flex: 1 1 auto` + `min-height: 0`） |
+   | 中区两块            | 固定 132px，**各自内部滚**                 |
+   | 三模块页（学习/复习/读书）的**右侧内容区** | **它滚**——下区跟随整页往下翻（见下节） |
+   | 主体（树 / 日历）   | **按内容高，不内部滚**（三模块页）／日历主体仍内部滚 |
+   | 整页（`html`/`body`）| **永不出现页面级滚动条，永不无限延伸**      |
+   | 计划页 / 设置页 / 首页 / 备忘页 | **保持无页面级滚动条**（工作区里按内容长） |
+
+   ### 三模块页：下区跟随整页滚（2026-10 修订 · 决定 7）
+
+   用户原话：「滚动整个页面的时候，能**跟随整个页面往下翻**，而不是在一小块里」。
+   所以学习 / 复习 / 读书三页**不再是**"下区吃满剩余高度、在内部滚"，而是：
+
+   ```
+   .app(100%, overflow:hidden)
+     ├─ .sidebar（左栏，永不动）
+     └─ .workspace（← 滚动发生在这一列；scrollbar-gutter: stable）
+          └─ .page--fill.page--scroll（min-height:100%，按内容长）
+               └─ .page__content（flex:0 0 auto）
+                    └─ .bands
+                         ├─ .bands__preview（按内容高）
+                         ├─ .bands__cards（固定 132px，各自内部滚）
+                         └─ .bands__main（按内容高、**不内部滚**）→ 树也按内容长
+   ```
+
+   ⚠️ `.workspace` 与 `.sidebar` 是 `.app` 的**两个 flex 兄弟项**（见 `App.tsx`），
+   所以让 `.workspace` 自己滚**不会**把左栏滚走。计划页（含日历）与设置页
+   不使用 `page--scroll`，仍然走"工作区 `overflow: hidden` + 主体内部滚"那一条老路。
+
+   ⚠️ 其它页照样按内容长，由 `.workspace` 统一滚——那条老规矩一个字没动。
+
+   ⚠️ 已踩过两次，别再犯：
+
+   1. **左栏三段必须用 `order` 显式控制**。只靠 `margin-top: auto` 把底部推下去，
+      中间列表一长就会把"数据与设置"挤出屏幕。
+   2. **`min-height: 0` 一个都不能少**。flex 子项默认 `min-height: auto`，
+      内容再长它也不肯缩，于是整页开始无限延伸、滚动条跑到页面级上去。
+      （改成"下区跟随整页滚"之后，三模块页的下区反而**必须**去掉这条，
+      否则树还是会被压成一条缝、还是在小框里滚。）
+
+   滚动条本身（10px 滑块 + 轨道底色 + `scrollbar-gutter: stable`）：
+   全局外观在 `base.css`，各滚动容器自己写 `scrollbar-gutter: stable`。
+   ========================================================================= */
+
+/* --------------------------------------------------------------- 左栏三段 */
+
+.sidebar {
+  width: var(--sidebar-width);
+  flex: 0 0 var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-3) var(--space-2);
+  background: var(--bg-subtle);
+  border-right: 1px solid var(--border-subtle);
+  /* 侧栏整体不滚：滚动只发生在上面的 `.sidebar__list` 里 */
+  overflow: hidden;
+  transition: width 0.12s ease, flex-basis 0.12s ease;
+}
+
+/* ① 顶部：日期 + 收起按钮（按钮在右上角） */
+.sidebar__top {
+  order: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1) var(--space-2);
+}
+
+.sidebar__date {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space-2);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__collapse {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.sidebar__collapse:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ② 导航：固定，不参与滚动 */
+.sidebar__nav {
+  order: 2;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ③ 中段列表：**唯一会滚的一段**（内容由当前模块 portal 进来） */
+.sidebar__list {
+  order: 3;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  border-top: 1px solid var(--border-strong);
+  padding-top: var(--space-2);
+}
+
+/* 没有模块列表时不要留一条空分隔线与空白 */
+.sidebar__list:empty {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* ④ 底部：搜索 + 数据与设置，固定 */
+.sidebar__bottom {
+  order: 4;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__divider {
+  height: 1px;
+  margin: var(--space-2) var(--space-3);
+  background: var(--border-strong);
+  opacity: 0.6;
+}
+
+/* ------------------------------------------------------------ 收起成窄条 */
+
+.sidebar--collapsed {
+  width: var(--sidebar-width-collapsed);
+  flex-basis: var(--sidebar-width-collapsed);
+  padding: var(--space-3) 0;
+  align-items: center;
+}
+
+.sidebar--collapsed .sidebar__top {
+  justify-content: center;
+  padding-bottom: var(--space-2);
+}
+
+/* 收起时隐藏：日期、文字标签、快捷键提示、中段列表（图标保留） */
+.sidebar--collapsed .sidebar__date,
+.sidebar--collapsed .nav__label,
+.sidebar--collapsed .nav__kbd,
+.sidebar--collapsed .nav__tag,
+.sidebar--collapsed .sidebar__list {
+  display: none;
+}
+
+.sidebar--collapsed .sidebar__nav,
+.sidebar--collapsed .sidebar__bottom,
+.sidebar--collapsed .sidebar__group {
+  width: 100%;
+  align-items: center;
+}
+
+.sidebar--collapsed .nav__item,
+.sidebar--collapsed .nav__search {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* 角标在窄条里变成一个点（数字放不下，但"有到期"这件事必须还看得见） */
+.sidebar--collapsed .nav__badge {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  width: 8px;
+  min-width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  line-height: 0;
+}
+
+/* --------------------------------------------------------------- 导航项 */
+
+.nav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 7px var(--space-3);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.nav__item:hover {
+  background: var(--bg-hover);
+}
+
+/* 选中态**只用颜色**：浅色变深、深色变淡（决定 5）。不加粗边框、不加箭头、不加左侧竖条 */
+.nav__item--active {
+  background: var(--bg-selected);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav__item--active:hover {
+  background: var(--bg-selected-hover);
+}
+
+/* 待开发模块：灰显但仍可点击 */
+.nav__item--planned {
+  color: var(--text-disabled);
+}
+
+.nav__item--planned:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.nav__icon {
+  flex: none;
+  width: 18px;
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+}
+
+.nav__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav__tag {
+  font-size: 11px;
+  color: var(--text-disabled);
+}
+
+.nav__badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.nav__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.nav__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-bottom: var(--space-2);
+  padding: 7px var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+}
+
+.nav__search:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.nav__kbd {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------- 中段列表里的条目（页面用） */
+
+/* 页面 portal 到侧栏里的列表，统一用这两个 class，免得各模块长得不一样 */
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sidebar-list__empty {
+  margin: 0;
+  padding: var(--space-2);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+/*
+   列表头右侧那一小撮：可选的开关 + 计数。
+   目前只有复习页用到（「显示已隐藏(N)」+ 主题数），放在一起是为了
+   "标题在左、操作在右"这条不因为加了按钮而乱掉。
+*/
+.sidebar-list__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sidebar-list__head-actions .link {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ 三段骨架 */
+
+/*
+   高度链条（少一环就变成页面级滚动条）——**这一条现在只适用于日历 / 设置这类
+   "主体必须内部滚、页面不许长"的页面**：
+
+   .app(100%) → .workspace(overflow:hidden，见下) → .page--fill(height:100%)
+     → .page__content(flex:1; min-height:0) → .bands(flex:1; min-height:0)
+       → .bands__main(flex:1; min-height:0) → 树/日历自己滚
+
+   三模块页（学习 / 复习 / 读书）走 `.page--scroll` 那一条（见文件头与本节末尾），
+   下区按内容高、由 `.workspace` 整页往下翻。
+*/
+.bands {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 上：预览。按内容高，不滚（滚的是下面两段） */
+.bands__preview {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 中：两块。左右各一，固定高度 */
+.bands__cards {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.bands__cards[data-card-count='1'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.bands__card-slot {
+  min-width: 0;
+}
+
+.band-card {
+  display: flex;
+  flex-direction: column;
+  height: var(--band-card-height);
+  min-height: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.band-card__head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 4px var(--space-3);
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.band-card__count {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* 卡片内部滚（固定高度 + 自己滚，页面就永远不会被它撑长） */
+.band-card__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--space-1) var(--space-2);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.band-card__empty {
+  padding: var(--space-2);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* 卡片里的行（资料清单这类"标题 + 两个数字"的条目） */
+.band-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.band-list__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 2px var(--space-1);
+  font-size: 12px;
+}
+
+.band-list__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.band-list__meta {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/*
+   行尾的一组（元信息 + `⋯` 菜单）。
+   行的布局是 `space-between` 的两栏：直接塞第三个子项会把元信息挤到中间去，
+   所以先把"元信息 + 按钮"打成一包，行还是两栏。
+*/
+.band-list__tail {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* 下：主体（树 / 日历）。**日历等"页面级不滚"的页面**仍吃满剩余高度、内部滚；
+   三模块页由下面 `page--scroll` 那一段改成按内容高（2026-10 修订） */
+.bands__main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 主体里的面板与树都把高度传下去（"页面级不滚"的页面：树吃满剩余高度、树自己滚；
+   三模块页由 `page--scroll` 那一段改掉） */
+.bands__main > .panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bands__main .tree {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.bands__main .tree__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+/* 主体本身要滚（不是树、而是普通长内容）时用这个 class —— 留着给"页面级不滚、
+   只有主体滚"的页面（日历那一类）用；三模块页**不再**需要它（见下节）。 */
+.bands__main--scroll {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: var(--space-2);
+}
+
+/* ==========================================================================
+   三模块页：下区跟随整页滚（学习 / 复习 / 读书 · 2026-10 修订 · 决定 7）
+   ==========================================================================
+
+   用户原话：「我希望我滚动整个页面的时候，能跟随整个页面往下翻，
+   而不是在一小块里，在一小块里看的不方便。」
+
+   落地方式（**只改这三页**，计划页 / 设置页 / 首页 / 备忘页一个字不动）：
+
+     滚动容器 = `.workspace`（右侧内容区）
+     下区     = 按内容高，不再 `flex: 1 1 auto` + `overflow: hidden`
+     树       = 按内容自然变高，不再 `flex: 1 1 auto` + `overflow: auto`
+
+   `.workspace` 与 `.sidebar` 是 `.app` 的两个 flex 兄弟项，所以它自己滚
+   **不会**把左栏滚走——左栏底部「数据与设置」永远在原位。
+   ========================================================================== */
+
+.workspace:has(> .page--scroll) {
+  overflow-y: auto;
+  /* 滚动条必须始终可见（决定 8）：槽位常驻，不然内容一长一短右侧就会跳 */
+  scrollbar-gutter: stable;
+}
+
+/* 页面至少一屏高（内容短时不留半截），内容长了就由 `.workspace` 往下翻 */
+.page--scroll {
+  height: auto;
+  min-height: 100%;
+}
+
+/* 内容区不再"吃满剩余高度"，改成按内容长——否则下区还是会被压回固定高度 */
+.page--scroll .page__content {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+/* 下区：按内容高、不内部滚（树也跟着按内容长） */
+.page--scroll .bands__main {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.page--scroll .bands__main > .panel,
+.page--scroll .bands__main .tree,
+.page--scroll .bands__main .tree__list,
+.page--scroll .bands__main .review-tree {
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* ------------------------------------------------------------------ 选中态 */
+
+/*
+   `MASTER.md` §7.4 / 决定 5：选中项**只用颜色**——
+   浅色模式比表面色深一点，深色模式比表面色淡一点；不加粗边框、不加箭头。
+   这三条 class 是给三个模块页复用的（09/10/11 直接拿去用，别自己写 border-left）。
+*/
+.is-selected {
+  background: var(--bg-selected);
+}
+
+.is-selected:hover {
+  background: var(--bg-selected-hover);
+}
+
+/* 侧栏里的图条目（学习主题 / 读书的书 / 复习的主题）统一长这样 */
+.sidebar-list .topic,
+.sidebar-list .book-row,
+.sidebar-list .review-topic {
+  width: 100%;
+  padding: 5px var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.sidebar-list .topic:hover,
+.sidebar-list .book-row:hover,
+.sidebar-list .review-topic:hover {
+  background: var(--bg-hover);
+}
+
+.sidebar-list .topic--active,
+.sidebar-list .book-row--active,
+.sidebar-list .review-topic--active {
+  background: var(--bg-selected);
+}
+
+.sidebar-list .topic--active:hover,
+.sidebar-list .book-row--active:hover,
+.sidebar-list .review-topic--active:hover {
+  background: var(--bg-selected-hover);
+}
+
+/*
+   复习页左栏的**一行**：主题按钮 + 行尾 `⋯`（隐藏行还多一个「取消隐藏」）。
+   2026-10 修订（修改 2 轮）：以前整行就是一个 `<button>`，加减号到行尾会把
+   `<button>` 套进 `<button>` 里（非法 HTML）。所以拆成 flex 行，
+   主题按钮只吃剩余宽度；长主题名交给 `text-overflow: ellipsis`。
+*/
+.sidebar-list .review-topic-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 0-3-0：故意压过上面那条 `.sidebar-list .review-topic { width: 100% }` */
+.sidebar-list .review-topic-row > .review-topic {
+  width: auto;
+  flex: 1 1 auto;
+  /* 没有它，长主题名会把行尾的 `⋯` 挤出侧栏 */
+  min-width: 0;
+}
+
+/*
+   只有"页面主体吃满高度"的页面才关掉工作区滚动（其它页面照旧按内容长）。
+
+   ⚠️ `:not(.page--scroll)` 不能少：三模块页也是 `page--fill`，但它们**要**让
+   工作区滚（上面那一节）。少了这个否定，后面的 `overflow: hidden` 会把
+   `overflow-y: auto` 盖掉（同为 0-2-0，谁在后面谁生效），症状就是
+   "改了半天树还是在小框里滚"。
+*/
+.workspace:has(> .page--fill:not(.page--scroll)) {
+  overflow: hidden;
+}
